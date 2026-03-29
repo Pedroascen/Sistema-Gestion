@@ -1,12 +1,11 @@
 package sv.ascen2000.InventorySystem.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 @Entity
 @Table(name = "user")
@@ -17,6 +16,8 @@ public class Users {
     private String username;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate fecha;
     private boolean enable;
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -70,4 +71,8 @@ public class Users {
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
+
+    public LocalDate getFecha() { return fecha; }
+
+    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
 }

@@ -5,17 +5,15 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import sv.ascen2000.InventorySystem.exception.BadRequestException;
-import sv.ascen2000.InventorySystem.model.Permission;
 import sv.ascen2000.InventorySystem.model.Role;
 import sv.ascen2000.InventorySystem.model.Users;
-import sv.ascen2000.InventorySystem.repository.PermissionRepository;
 import sv.ascen2000.InventorySystem.repository.RoleRepository;
 import sv.ascen2000.InventorySystem.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -74,7 +72,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasAuthority('CREATE_USER')")
-    @PostMapping()
+    @PostMapping("/register")
     Users registerUser(@RequestBody Users users){
         Role roleUser = roleRepository.findByName("ROLE_USERS").orElseThrow(EntityNotFoundException::new);
         boolean userNameExist = userRepository.existsByUsername(users.getUsername());
@@ -84,6 +82,7 @@ public class UserController {
         }
         users.setRoles(Collections.singletonList(roleUser));
         users.setEnable(true);
+        users.setFecha(LocalDate.now());
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         return userRepository.save(users);
     }
@@ -104,7 +103,6 @@ public class UserController {
         users.setUsername(userform.getUsername());
         users.setPassword(passwordEncoder.encode(userform.getPassword()));
 
-        Role roleAdmin = roleRepository.findByName("ROLE_ADMIN").orElseThrow(EntityNotFoundException::new);
         if(userform.getRoles() != null){
             boolean isAdmin = userform.getRoles().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getName()));
             Long roleId = 0L;
