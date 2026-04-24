@@ -87,7 +87,7 @@ public class UserController {
         return userRepository.save(users);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasAuthority('CREATE_USER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasAuthority('UPDATE_USER')")
     @PutMapping("/{id}")
     Users updateUser(@PathVariable Long id, @RequestBody Users userform){
         if(id==1){

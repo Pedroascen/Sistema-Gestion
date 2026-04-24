@@ -52,6 +52,7 @@ public class RoleController {
         return roleRepository.save(role);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping("/{id}")
     Role actualizar(@PathVariable Long id, @RequestBody Role roleform){
         //Si solo escribe el rol despues del prefijo
