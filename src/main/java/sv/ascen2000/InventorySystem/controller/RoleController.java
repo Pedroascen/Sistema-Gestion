@@ -74,16 +74,34 @@ public class RoleController {
     @PutMapping("/asignar_permisos/{id}")
     public Role asignarPermisos(@PathVariable Long id, @RequestBody List<Permission> permissionsform){
         Role role = roleRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        boolean hasChangesPermissions = false;
         if(permissionsform.isEmpty()){
             throw new BadRequestException("No se encontraron permisos que agregar.");
         }
-        List<Permission> permissions = new ArrayList<>();
+        List<Permission> savedPermissions = new ArrayList<>();
         for (Permission savedPermission : permissionsform){
             Permission perm = permissionRepository.findById(savedPermission.getId()).orElseThrow(EntityNotFoundException::new);
-            permissions.add(perm);
-            System.out.println("El permiso a agregar es: "+perm.getName());
+            savedPermissions.add(perm);
+            //System.out.println("El permiso a agregar es: "+perm.getName());
         }
-        return null;
+        List<Permission> permissionExitsRole = role.getPermissions();
+        for(Permission perm : savedPermissions){
+            boolean alreadyExists = permissionExitsRole.stream()
+                    .anyMatch(p-> p.getName().equals(perm.getName()));
+            if(!alreadyExists){
+                permissionExitsRole.add(perm);
+                System.out.println("El permiso que se agregara es: "+perm.getName());
+                hasChangesPermissions = true;
+            }
+        }
+        if(hasChangesPermissions){
+            role.setPermissions(permissionExitsRole);
+            System.out.println("- Se actualizaron los permisos del rol.");
+            return roleRepository.save(role);
+        }else{
+            System.out.println("- No hay cambios en los permisos.");
+            return role;
+        }
     }
 
     //Metodos de validacion
